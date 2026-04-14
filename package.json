@@ -1,0 +1,45 @@
+{
+  "name": "@tunedforai/x402-mcp",
+  "version": "1.1.0",
+  "description": "MCP server for x402 crypto market structure data — camelCase tools, zero config, works everywhere",
+  "type": "module",
+  "bin": {
+    "x402-mcp": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "crypto",
+    "market-data",
+    "bitcoin",
+    "ethereum",
+    "x402",
+    "modelcontextprotocol"
+  ],
+  "author": "Tuned For AI <admin@tunedfor.ai>",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tunedforai/x402-mcp.git"
+  }
+}

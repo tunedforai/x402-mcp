@@ -1,0 +1,25 @@
+# Node
+node_modules/
+*.log
+npm-debug.log*
+.env
+.env.local
+
+# TypeScript build
+dist/*.js.map
+dist/*.d.ts.map
+# Note: dist/*.js and dist/*.d.ts ARE committed — needed for npm install from git
+
+# Internal Jarvis files (not public)
+CLAUDE.md
+memory/
+_scratch/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
