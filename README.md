@@ -63,8 +63,11 @@ All 9 tools are stateless. No API key, no auth, no setup. Just call them.
 
 ### Token coverage
 
-- **Snapshot tier** (17 tokens): BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX, LINK, ATOM, DOT, ARB, SUI, OP, LTC, AMP, ZEC
-- **Orderflow + history tier** (26 tokens): all of the above + NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM
+Major L1s and L2s on the snapshot tier: BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX, LINK, ATOM, DOT, ARB, SUI, OP, LTC.
+
+Extended orderflow + history tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
+
+Call `apiInfo` from any MCP client for the authoritative current list.
 
 ---
 
