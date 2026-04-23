@@ -1,11 +1,11 @@
 # x402-mcp
 
-> Cross-exchange crypto market structure for AI agents. 20 exchanges, 26 tokens, 9 tools — orderflow, CVD, whale activity, funding/OI, 7-year OHLCV, on-chain address risk. Free via MCP.
+> Cross-exchange crypto market structure for AI agents. 20 exchanges, 26 tokens, 6 tools - snapshot, orderflow, macro regime, full analysis, address risk, and API info. Free via MCP.
 
 [![npm version](https://img.shields.io/npm/v/@tunedforai/x402-mcp.svg)](https://www.npmjs.com/package/@tunedforai/x402-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-`x402-mcp` is a stdio MCP server that exposes [x402.tunedfor.ai](https://x402.tunedfor.ai) — a real-time crypto market structure API — as 9 tools any MCP-compatible client (Claude Desktop, Cursor, Cline, Windsurf, Claude Code) can call. Free via MCP for testing and low-frequency queries; paid REST at the same endpoints for production agents that need higher throughput.
+`x402-mcp` is a stdio MCP server that exposes [x402.tunedfor.ai](https://x402.tunedfor.ai) - a real-time crypto market structure API - as 6 tools any MCP-compatible client (Claude Desktop, Cursor, Cline, Windsurf, Claude Code) can call. Free via MCP for testing and low-frequency queries; paid REST at the same endpoints for production agents that need higher throughput.
 
 ---
 
@@ -47,7 +47,7 @@ x402-mcp  # runs the stdio server
 
 ## Tools
 
-All 9 tools are stateless. No API key, no auth, no setup. Just call them.
+All 6 tools are stateless. No API key, no auth, no setup. Just call them.
 
 | Tool | What it returns | REST equivalent | Free via MCP / Paid REST |
 |---|---|---|---|
@@ -56,16 +56,13 @@ All 9 tools are stateless. No API key, no auth, no setup. Just call them.
 | `marketOrderflow` | Cross-exchange CVD, whale activity, liquidation pressure | `POST /analyze/orderflow` | Free / $0.50 |
 | `marketFull` | Snapshot + orderflow + LLM-synthesized analysis | `POST /analyze/full` | Free / $0.75 |
 | `addressRisk` | Wallet risk score (mixers, sanctions, counterparties). EVM + Solana | `POST /analyze/address` | Free / $0.25 |
-| `history1h` | Hourly OHLCV with buy/sell flow split. Up to 5,000 bars, 7-year history | `POST /data/history/1h` | Free / $5.00 |
-| `history1d` | Daily OHLCV with buy/sell flow split. Up to 5,000 bars, 7-year history | `POST /data/history/1d` | Free / $5.00 |
-| `history5m` | 5-minute OHLCV. High-resolution intraday | `POST /data/history/5m` | Free / $1.00 |
 | `apiInfo` | Pricing, quick-start, migration details | `GET /api_info` | Free |
 
 ### Token coverage
 
 Major L1s and L2s on the snapshot tier: BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX, LINK, ATOM, DOT, ARB, SUI, OP, LTC.
 
-Extended orderflow + history tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
+Extended orderflow tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
 
 Call `apiInfo` from any MCP client for the authoritative current list.
 
@@ -91,15 +88,6 @@ LLM: ETH cross-exchange CVD: -$1.2M last hour (sell-side dominant).
      Liquidations: $890K longs, $230K shorts. Pressure: bearish.
 ```
 
-### Backtest data
-
-```
-You: history1d BTC limit=365
-LLM: [returns 365 daily bars: open/high/low/close/volume/buy_volume/sell_volume]
-```
-
----
-
 ## Free MCP vs Paid REST
 
 The MCP wrapper is **free with rate limits** — perfect for testing, prototyping, low-frequency agent workflows, and personal use.
@@ -108,7 +96,7 @@ For production agents (24/7 polling, multi-token monitoring, backtesting at scal
 
 - **Pay-per-call in USDC on Base or Solana** via the [x402 protocol](https://www.x402.org/)
 - **No API keys** — your agent signs payment locally; the private key never leaves your machine
-- **No rate limits** — pay for what you use
+- **Rate-limited to 60 calls/minute and 200 calls/hour per wallet** — prevents stripmining; 429 on breach
 - **No subscriptions** — no monthly minimums
 
 Call `apiInfo` from any MCP client to get the current pricing schedule, migration guide, and SDK examples.
@@ -132,12 +120,12 @@ No accounts, no API keys, no credit cards. Just USDC and a wallet.
 
 - **Price + ticker:** OKX, Coinbase public APIs
 - **Funding / OI / liquidations:** [Coinalyze](https://coinalyze.net) (commercial license)
-- **On-chain metrics, exchange flows, whale ratios:** [Santiment](https://santiment.net) (commercial license)
+- **On-chain metrics, exchange flows, whale ratios:** licensed third-party institutional data
 - **Cross-exchange orderflow (CVD, whale bars, liq aggregations):** WebSocket aggregator across 20 exchanges into InfluxDB, normalized into 1-minute bars
 - **Macro context (DXY, VIX, Treasury yields):** FRED + Finviz
 - **Fear & Greed Index:** alternative.me
 
-We don't redistribute raw exchange ticks — we serve derived, computed aggregates.
+We don't redistribute raw exchange data — we serve derived, computed aggregates. All raw source fields are transformed into our own composite signals before responses are returned.
 
 ---
 

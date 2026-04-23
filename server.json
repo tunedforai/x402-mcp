@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.tunedforai/x402-mcp",
+  "title": "x402 Crypto Market Structure",
+  "description": "Real-time crypto market structure for AI agents. 20 live exchanges, 26 orderflow tokens (17 snapshot tokens). 6 tools: curated market snapshot (16 reliable fields), macro regime + directional signal, cross-exchange orderflow with CVD and whale activity, complete pre-trade due diligence with LLM synthesis, on-chain address risk (Ethereum, Base, Solana), and API info. Free via MCP (60 calls/minute per IP). Paid REST at x402.tunedfor.ai — pay-per-call in USDC on Base or Solana via x402 protocol, no API key, rate-limited to 60 calls/minute and 200 calls/hour per wallet.",
+  "websiteUrl": "https://x402.tunedfor.ai",
+  "repository": {
+    "url": "https://github.com/tunedforai/x402-mcp",
+    "source": "github"
+  },
+  "version": "1.1.2",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@tunedforai/x402-mcp",
+      "version": "1.1.2",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://x402.tunedfor.ai/mcp"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "category": "finance",
+      "tags": ["crypto", "market-data", "orderflow", "x402", "defi"],
+      "pricing": {
+        "mcp": "free (rate-limited)",
+        "rest": "pay-per-call USDC on Base via x402"
+      }
+    }
+  }
+}

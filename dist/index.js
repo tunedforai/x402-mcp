@@ -2,13 +2,13 @@
 /**
  * @tunedforai/x402-mcp
  * stdio MCP wrapper for x402.tunedfor.ai
- * Exposes camelCase tool names — no dots, no parser breakage.
+ * Exposes camelCase tool names - no dots, no parser breakage.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 const UPSTREAM = "https://x402.tunedfor.ai/mcp/";
-// ── Session management ────────────────────────────────────────────────────────
+// Session management
 let sessionId = null;
 const ACCEPT = "application/json, text/event-stream";
 async function initSession() {
@@ -37,7 +37,6 @@ async function initSession() {
 async function parseResponse(res) {
     const ct = res.headers.get("content-type") ?? "";
     if (ct.includes("text/event-stream")) {
-        // SSE: read all chunks and find the last data: line with a full JSON result
         const text = await res.text();
         const lines = text.split("\n");
         let last = null;
@@ -70,7 +69,6 @@ async function callTool(toolName, args) {
     });
     let res = await doFetch(sid);
     if (!res.ok) {
-        // Session may have expired — reset and retry once
         if (res.status === 400 || res.status === 404) {
             sessionId = null;
             const sid2 = await initSession();
@@ -87,12 +85,7 @@ async function callTool(toolName, args) {
         throw new Error(data.error.message ?? "Upstream RPC error");
     return data.result?.content;
 }
-// ── Helper: extract text from MCP content array ───────────────────────────────
-const REST_FOOTER = "\n\n---\nData via x402.tunedfor.ai REST API — pay per call in USDC, no rate limits, no subscription. Docs: https://x402.tunedfor.ai/guide";
-// Returns an ISO timestamp in UTC the caller can display. The server's data
-// has its own `fetched_at` inside the JSON payload (source of truth); this is
-// the call time so the LLM always has *some* timestamp to render even if the
-// server payload lacks one.
+const REST_FOOTER = "\n\n---\nData via x402.tunedfor.ai REST API - pay per call in USDC, 60 calls/minute and 200 calls/hour per wallet, no subscription. Docs: https://x402.tunedfor.ai/guide";
 function callTimestamp() {
     return new Date().toISOString().replace(/\.\d+Z$/, "Z");
 }
@@ -110,66 +103,34 @@ function extractText(toolName, content) {
     }
     return header + JSON.stringify(content, null, 2) + REST_FOOTER;
 }
-// ── MCP Server setup ──────────────────────────────────────────────────────────
 const server = new McpServer({
     name: "x402-crypto-market-structure",
     version: "1.0.0",
 });
-// marketSnapshot — live price, funding, OI, buy/sell ratio, fear/greed
-server.tool("marketSnapshot", "Live crypto market snapshot: price, funding rate, open interest, buy/sell ratio, fear/greed index. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC.", { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") }, async ({ token }) => {
+server.tool("marketSnapshot", "Live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.", { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") }, async ({ token }) => {
     const result = await callTool("market_snapshot", { token });
     return { content: [{ type: "text", text: extractText("market_snapshot", result) }] };
 });
-// marketAnalyze — macro regime + directional signal
-server.tool("marketAnalyze", "Full pre-trade macro analysis: regime detection, DXY, VIX, fear/greed, directional signal and confidence score.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
+server.tool("marketAnalyze", "Macro regime plus directional signal and confidence for a token.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
     const result = await callTool("market_analyze", { token });
     return { content: [{ type: "text", text: extractText("market_analyze", result) }] };
 });
-// marketOrderflow — buy/sell pressure, delta, imbalance
-server.tool("marketOrderflow", "Real-time orderflow data: buy/sell pressure, delta, imbalance across exchanges.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
+server.tool("marketOrderflow", "Cross-exchange orderflow: CVD, whale activity, liquidations, and exchange breakdown.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
     const result = await callTool("market_orderflow", { token });
     return { content: [{ type: "text", text: extractText("market_orderflow", result) }] };
 });
-// marketFull — combined snapshot + orderflow
-server.tool("marketFull", "Full market data bundle: snapshot + orderflow combined. Most comprehensive view.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
+server.tool("marketFull", "Full market data bundle: snapshot, orderflow, and LLM-generated verdict.", { token: z.string().default("BTC").describe("Token symbol") }, async ({ token }) => {
     const result = await callTool("market_full", { token });
     return { content: [{ type: "text", text: extractText("market_full", result) }] };
 });
-// history1h — hourly OHLCV + buy/sell flow
-server.tool("history1h", "Hourly OHLCV price history with buy/sell flow data. Up to 7 years of 1-hour bars, up to 5,000 bars per call.", {
-    token: z.string().default("BTC").describe("Token symbol"),
-    limit: z.number().default(24).describe("Number of bars to return (max 5000)"),
-}, async ({ token, limit }) => {
-    const result = await callTool("history_1h", { token, limit });
-    return { content: [{ type: "text", text: extractText("history_1h", result) }] };
-});
-// history1d — daily OHLCV
-server.tool("history1d", "Daily OHLCV price history with buy/sell flow data. Up to 7 years of daily bars, up to 5,000 bars per call. Good for backtesting and trend analysis.", {
-    token: z.string().default("BTC").describe("Token symbol"),
-    limit: z.number().default(30).describe("Number of daily bars (max 5000)"),
-}, async ({ token, limit }) => {
-    const result = await callTool("history_1d", { token, limit });
-    return { content: [{ type: "text", text: extractText("history_1d", result) }] };
-});
-// history5m — 5-minute OHLCV
-server.tool("history5m", "5-minute OHLCV price bars. High-resolution intraday data.", {
-    token: z.string().default("BTC").describe("Token symbol"),
-    limit: z.number().default(60).describe("Number of 5-minute bars"),
-}, async ({ token, limit }) => {
-    const result = await callTool("history_5m", { token, limit });
-    return { content: [{ type: "text", text: extractText("history_5m", result) }] };
-});
-// addressRisk — wallet risk scoring
-server.tool("addressRisk", "Risk score for an Ethereum wallet address. Flags mixers, sanctions, high-risk counterparties.", { address: z.string().describe("Full 42-character Ethereum address (0x...)") }, async ({ address }) => {
+server.tool("addressRisk", "Risk score for an Ethereum or Solana wallet address.", { address: z.string().describe("Full 42-character Ethereum address or supported Solana address") }, async ({ address }) => {
     const result = await callTool("address_risk", { address });
     return { content: [{ type: "text", text: extractText("address_risk", result) }] };
 });
-// apiInfo — pricing and quick-start for REST API
 server.tool("apiInfo", "x402 API pricing, quick start guide, and migration details for the pay-per-call REST endpoint.", {}, async () => {
     const result = await callTool("api_info", {});
     return { content: [{ type: "text", text: extractText("api_info", result) }] };
 });
-// ── Start ─────────────────────────────────────────────────────────────────────
 const transport = new StdioServerTransport();
 await server.connect(transport);
 //# sourceMappingURL=index.js.map
