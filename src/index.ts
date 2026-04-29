@@ -8,6 +8,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { buildFooter } from "./contract.js";
 
 const UPSTREAM = "https://x402.tunedfor.ai/mcp/";
 
@@ -102,9 +103,6 @@ async function callTool(toolName: string, args: Record<string, unknown>): Promis
   return data.result?.content;
 }
 
-const REST_FOOTER =
-  "\n\n---\nData via x402.tunedfor.ai REST API - pay per call in USDC, 60 calls/minute and 200 calls/hour per wallet, no subscription. Docs: https://x402.tunedfor.ai/guide";
-
 function callTimestamp(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, "Z");
 }
@@ -115,6 +113,7 @@ function buildHeader(toolName: string): string {
 
 function extractText(toolName: string, content: unknown): string {
   const header = buildHeader(toolName);
+  const footer = buildFooter(toolName);
   if (Array.isArray(content)) {
     const body = content
       .filter(
@@ -123,9 +122,9 @@ function extractText(toolName: string, content: unknown): string {
       )
       .map((c) => c.text)
       .join("\n");
-    return header + body + REST_FOOTER;
+    return header + body + footer;
   }
-  return header + JSON.stringify(content, null, 2) + REST_FOOTER;
+  return header + JSON.stringify(content, null, 2) + footer;
 }
 
 const server = new McpServer({
@@ -135,7 +134,7 @@ const server = new McpServer({
 
 server.tool(
   "marketSnapshot",
-  "Live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.",
+  "Free 16-field MCP subset of the live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Paid REST /data returns the full production snapshot. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.",
   { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") },
   async ({ token }) => {
     const result = await callTool("market_snapshot", { token });
