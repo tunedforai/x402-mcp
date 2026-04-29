@@ -75,7 +75,7 @@ Time estimate: **~15 min including browser OAuth.** One-time setup.
 **Paste-ready fields:**
 - **Repository URL:** `https://github.com/tunedforai/x402-mcp`
 - **Name:** x402 Crypto Market Structure
-- **Short description:** Real-time crypto orderflow for AI agents. 20 exchanges, 26 tokens (17 for snapshot/market/full), 6 tools. Free via MCP (60/min per IP), paid REST via x402 USDC on Base or Solana (60/min and 200/hr per wallet).
+- **Short description:** Real-time crypto orderflow for AI agents. 20 exchanges, 26 tokens (17 for snapshot/market/full), 6 tools. Free 16-field MCP snapshot subset (60/min per IP), paid REST via x402 USDC on Base or Solana (60/min and 200/hr per wallet).
 - **Category:** Finance / Cryptocurrency
 - **Transport:** Streamable HTTP (`https://x402.tunedfor.ai/mcp`) + stdio (npm wrapper)
 
@@ -102,7 +102,7 @@ Time estimate: **~15 min including browser OAuth.** One-time setup.
 
 ### Reason for Addition
 
-x402-mcp gives AI agents real-time crypto market structure (orderflow from 20 exchanges, 26 tokens, 6 tools) with zero API keys. Free via MCP (60 calls/minute per IP). Paid REST via x402 micropayments on Base or Solana, rate-limited to 60 calls/minute and 200 calls/hour per wallet. Complements Cline's crypto tool ecosystem by adding institutional-grade market microstructure data (CVD, whale flows, funding rates) that's missing from most agent toolkits.
+x402-mcp gives AI agents real-time crypto market structure (orderflow from 20 exchanges, 26 tokens, 6 tools) with zero API keys. Free via MCP, including a 16-field marketSnapshot subset for agent context and routing (60 calls/minute per IP). Paid REST via x402 micropayments on Base or Solana, rate-limited to 60 calls/minute and 200 calls/hour per wallet. Complements Cline's crypto tool ecosystem by adding institutional-grade market microstructure data (CVD, whale flows, funding rates) that's missing from most agent toolkits.
 
 ### Installation Check
 
@@ -143,7 +143,7 @@ I'd like to list x402 Crypto Market Structure on BlockRun.ai. Details below.
 
 Service: x402 Crypto Market Structure
 Endpoint: https://x402.tunedfor.ai
-Description: Real-time crypto orderflow from 20 exchanges (Binance, Coinbase, Bybit, OKX, etc.) across 26 tokens (17 for snapshot/market/full endpoints). 6 tools covering curated market snapshots (16 reliable fields), macro regime + directional signal, cross-exchange CVD with whale activity, complete pre-trade due diligence with LLM synthesis, and on-chain address risk (Ethereum, Base, Solana).
+Description: Real-time crypto orderflow from 20 exchanges (Binance, Coinbase, Bybit, OKX, etc.) across 26 tokens (17 for snapshot/market/full endpoints). 6 tools covering a free curated marketSnapshot MCP subset (16 market data fields plus metadata), macro regime + directional signal, cross-exchange CVD with whale activity, complete pre-trade due diligence with LLM synthesis, and on-chain address risk (Ethereum, Base, Solana).
 
 Pricing: Pay-per-call in USDC on Base or Solana via x402 protocol. No API keys. Rate-limited to 60 calls/minute and 200 calls/hour per wallet. $0.20–$0.75 per call depending on tool.
 

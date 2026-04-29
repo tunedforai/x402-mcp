@@ -7,6 +7,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { buildFooter } from "./contract.js";
 const UPSTREAM = "https://x402.tunedfor.ai/mcp/";
 // Session management
 let sessionId = null;
@@ -85,7 +86,6 @@ async function callTool(toolName, args) {
         throw new Error(data.error.message ?? "Upstream RPC error");
     return data.result?.content;
 }
-const REST_FOOTER = "\n\n---\nData via x402.tunedfor.ai REST API - pay per call in USDC, 60 calls/minute and 200 calls/hour per wallet, no subscription. Docs: https://x402.tunedfor.ai/guide";
 function callTimestamp() {
     return new Date().toISOString().replace(/\.\d+Z$/, "Z");
 }
@@ -94,20 +94,21 @@ function buildHeader(toolName) {
 }
 function extractText(toolName, content) {
     const header = buildHeader(toolName);
+    const footer = buildFooter(toolName);
     if (Array.isArray(content)) {
         const body = content
             .filter((c) => typeof c === "object" && c !== null && "text" in c)
             .map((c) => c.text)
             .join("\n");
-        return header + body + REST_FOOTER;
+        return header + body + footer;
     }
-    return header + JSON.stringify(content, null, 2) + REST_FOOTER;
+    return header + JSON.stringify(content, null, 2) + footer;
 }
 const server = new McpServer({
     name: "x402-crypto-market-structure",
     version: "1.0.0",
 });
-server.tool("marketSnapshot", "Live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.", { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") }, async ({ token }) => {
+server.tool("marketSnapshot", "Free 16-field MCP subset of the live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Paid REST /data returns the full production snapshot. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.", { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") }, async ({ token }) => {
     const result = await callTool("market_snapshot", { token });
     return { content: [{ type: "text", text: extractText("market_snapshot", result) }] };
 });

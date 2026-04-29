@@ -51,7 +51,7 @@ All 6 tools are stateless. No API key, no auth, no setup. Just call them.
 
 | Tool | What it returns | REST equivalent | Free via MCP / Paid REST |
 |---|---|---|---|
-| `marketSnapshot` | Live price, funding, OI, buy/sell ratio, fear/greed | `POST /data` | Free / $0.20 |
+| `marketSnapshot` | Free 16-field MCP subset: live price, funding, OI, buy/sell ratio, fear/greed | `POST /data` | Free / $0.20 |
 | `marketAnalyze` | Macro regime, DXY, VIX, directional signal + confidence | `POST /analyze/market` | Free / $0.25 |
 | `marketOrderflow` | Cross-exchange CVD, whale activity, liquidation pressure | `POST /analyze/orderflow` | Free / $0.50 |
 | `marketFull` | Snapshot + orderflow + LLM-synthesized analysis | `POST /analyze/full` | Free / $0.75 |
@@ -65,6 +65,31 @@ Major L1s and L2s on the snapshot tier: BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX
 Extended orderflow tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
 
 Call `apiInfo` from any MCP client for the authoritative current list.
+
+---
+
+## MCP subset contract
+
+marketSnapshot returns a free 16-field MCP subset for agent context and routing. It is not the paid REST `/data` schema.
+
+Expected top-level MCP keys:
+
+- `as_of_utc`
+- `token`
+- `snapshot`
+- `data_freshness`
+- `presentation_hint`
+- `next_steps`
+
+The `snapshot` object carries the 16 market data fields plus metadata. `token` and `fetched_at` are metadata keys, so a raw JSON key count may show 17 keys under `snapshot` even though the product contract is the 16-field market-data subset.
+
+Do not require `schema_version` or `coverage` from MCP. Those belong to the paid REST contract unless the MCP product contract is intentionally expanded.
+
+Every `marketSnapshot` response must keep the REST CTA:
+
+```text
+This is a 16-field MCP subset. Paid REST /data at x402.tunedfor.ai ($0.20 USDC) returns the full 70-field snapshot including on-chain metrics, sentiment, and historical percentiles. No API key, pay-per-call from any wallet.
+```
 
 ---
 
