@@ -1,11 +1,11 @@
 # x402-mcp
 
-> Cross-exchange crypto market structure for AI agents. 20 exchanges, 26 tokens, 6 tools - snapshot, orderflow, macro regime, full analysis, address risk, and API info. Free via MCP.
+> Cross-exchange crypto market structure for AI agents. 20 exchanges, 26 fixed Pillar tokens plus any-token light coverage, 7 tools - light coverage, snapshot, orderflow, macro regime, full analysis, address risk, and API info. Free via MCP.
 
 [![npm version](https://img.shields.io/npm/v/@tunedforai/x402-mcp.svg)](https://www.npmjs.com/package/@tunedforai/x402-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-`x402-mcp` is a stdio MCP server that exposes [x402.tunedfor.ai](https://x402.tunedfor.ai) - a real-time crypto market structure API - as 6 tools any MCP-compatible client (Claude Desktop, Cursor, Cline, Windsurf, Claude Code) can call. Free via MCP for testing and low-frequency queries; paid REST at the same endpoints for production agents that need higher throughput.
+`x402-mcp` is a stdio MCP server that exposes [x402.tunedfor.ai](https://x402.tunedfor.ai) - a real-time crypto market structure API - as 7 tools any MCP-compatible client (Claude Desktop, Cursor, Cline, Windsurf, Claude Code) can call. Free via MCP for testing and low-frequency queries; paid REST at the same endpoints for production agents that need higher throughput.
 
 ---
 
@@ -47,10 +47,11 @@ x402-mcp  # runs the stdio server
 
 ## Tools
 
-All 6 tools are stateless. No API key, no auth, no setup. Just call them.
+All 7 tools are stateless. No API key, no auth, no setup. Just call them.
 
 | Tool | What it returns | REST equivalent | Free via MCP / Paid REST |
 |---|---|---|---|
+| `marketLight` | Any-token CoinGecko-backed market coverage: price, momentum, rank, liquidity/exchange context, risk flags, and Kimi brief | `POST /data/light` | Free / $0.05 |
 | `marketSnapshot` | Free 16-field MCP subset: live price, funding, OI, buy/sell ratio, fear/greed | `POST /data` | Free / $0.20 |
 | `marketAnalyze` | Macro regime, DXY, VIX, directional signal + confidence | `POST /analyze/market` | Free / $0.25 |
 | `marketOrderflow` | Cross-exchange CVD, whale activity, liquidation pressure | `POST /analyze/orderflow` | Free / $0.50 |
@@ -63,6 +64,8 @@ All 6 tools are stateless. No API key, no auth, no setup. Just call them.
 Major L1s and L2s on the snapshot tier: BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX, LINK, ATOM, DOT, ARB, SUI, OP, LTC.
 
 Extended orderflow tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
+
+marketLight supports listed CoinGecko symbols beyond the fixed Pillar token list. Use it for lightweight coverage of tokens such as WCT when the fixed snapshot/orderflow tools reject a symbol.
 
 Call `apiInfo` from any MCP client for the authoritative current list.
 

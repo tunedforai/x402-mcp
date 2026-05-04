@@ -52,3 +52,39 @@ test("server registry copy names the MCP subset separately from paid REST", () =
   assert.match(server.description, /paid REST \/data/i);
   assert.match(server.description, /full 70-field snapshot/i);
 });
+
+test("marketLight exposes the any-token data/light bridge to upstream market_light", () => {
+  const src = read("src/index.ts");
+  const dist = read("dist/index.js");
+
+  for (const text of [src, dist]) {
+    assert.match(text, /server\.tool\(\s*"marketLight"/);
+    assert.match(text, /callTool\("market_light", \{ symbol \}\)/);
+    assert.match(text, /Any-token CoinGecko-backed market coverage via \/data\/light/);
+  }
+});
+
+test("README documents seven tools and separates marketLight any-token coverage", () => {
+  const readme = read("README.md");
+
+  assert.match(readme, /7 tools/);
+  assert.match(readme, /All 7 tools are stateless/);
+  assert.match(readme, /\| `marketLight` \| Any-token CoinGecko-backed market coverage/);
+  assert.match(readme, /`POST \/data\/light`/);
+  assert.match(readme, /marketLight supports listed CoinGecko symbols beyond the fixed Pillar token list/);
+});
+
+test("package and registry metadata publish marketLight as version 1.1.4", () => {
+  const pkg = JSON.parse(read("package.json"));
+  const lock = JSON.parse(read("package-lock.json"));
+  const server = JSON.parse(read("server.json"));
+
+  assert.equal(pkg.version, "1.1.4");
+  assert.equal(lock.version, "1.1.4");
+  assert.equal(lock.packages[""].version, "1.1.4");
+  assert.equal(server.version, "1.1.4");
+  assert.equal(server.packages[0].version, "1.1.4");
+  assert.match(server.description, /7 tools/i);
+  assert.match(server.description, /any-token CoinGecko-backed marketLight/i);
+  assert.match(server.description, /\/data\/light/i);
+});

@@ -133,6 +133,16 @@ const server = new McpServer({
 });
 
 server.tool(
+  "marketLight",
+  "Any-token CoinGecko-backed market coverage via /data/light: price, momentum, rank, liquidity and exchange context, risk flags, and Kimi brief. Supports listed CoinGecko symbols beyond the fixed Pillar token list, e.g. WCT.",
+  { symbol: z.string().default("BTC").describe("Token symbol, e.g. BTC, WCT, PEPE") },
+  async ({ symbol }) => {
+    const result = await callTool("market_light", { symbol });
+    return { content: [{ type: "text", text: extractText("market_light", result) }] };
+  },
+);
+
+server.tool(
   "marketSnapshot",
   "Free 16-field MCP subset of the live crypto market snapshot: price, funding, OI, buy/sell ratio, fear/greed. Paid REST /data returns the full production snapshot. Supports BTC ETH SOL XRP BNB DOGE ADA AVAX LINK ATOM DOT ARB SUI OP LTC AMP ZEC.",
   { token: z.string().default("BTC").describe("Token symbol, e.g. BTC, ETH, SOL") },
