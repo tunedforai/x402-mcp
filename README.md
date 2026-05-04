@@ -51,7 +51,7 @@ All 7 tools are stateless. No API key, no auth, no setup. Just call them.
 
 | Tool | What it returns | REST equivalent | Free via MCP / Paid REST |
 |---|---|---|---|
-| `marketLight` | Any-token CoinGecko-backed market coverage: price, momentum, rank, liquidity/exchange context, risk flags, and Kimi brief | `POST /data/light` | Free / $0.05 |
+| `marketLight` | Any-token CoinGecko-backed market coverage: price, momentum, rank, liquidity/exchange context, and risk flags. Defaults to `brief=off`; set `brief=full` for Kimi brief | `POST /data/light` | Free / $0.05 |
 | `marketSnapshot` | Free 16-field MCP subset: live price, funding, OI, buy/sell ratio, fear/greed | `POST /data` | Free / $0.20 |
 | `marketAnalyze` | Macro regime, DXY, VIX, directional signal + confidence | `POST /analyze/market` | Free / $0.25 |
 | `marketOrderflow` | Cross-exchange CVD, whale activity, liquidation pressure | `POST /analyze/orderflow` | Free / $0.50 |
@@ -65,7 +65,7 @@ Major L1s and L2s on the snapshot tier: BTC, ETH, SOL, XRP, BNB, DOGE, ADA, AVAX
 
 Extended orderflow tier: the above plus NEAR, AAVE, BCH, HBAR, SHIB, TON, TRX, UNI, XLM.
 
-marketLight supports listed CoinGecko symbols beyond the fixed Pillar token list. Use it for lightweight coverage of tokens such as WCT when the fixed snapshot/orderflow tools reject a symbol.
+marketLight supports listed CoinGecko symbols beyond the fixed Pillar token list. Use it for lightweight coverage of tokens such as WCT when the fixed snapshot/orderflow tools reject a symbol. It defaults to `brief=off` for lower latency; request `brief=full` when you specifically need the Kimi-generated prose brief.
 
 Call `apiInfo` from any MCP client for the authoritative current list.
 

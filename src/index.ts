@@ -134,10 +134,13 @@ const server = new McpServer({
 
 server.tool(
   "marketLight",
-  "Any-token CoinGecko-backed market coverage via /data/light: price, momentum, rank, liquidity and exchange context, risk flags, and Kimi brief. Supports listed CoinGecko symbols beyond the fixed Pillar token list, e.g. WCT.",
-  { symbol: z.string().default("BTC").describe("Token symbol, e.g. BTC, WCT, PEPE") },
-  async ({ symbol }) => {
-    const result = await callTool("market_light", { symbol });
+  "Any-token CoinGecko-backed market coverage via /data/light: price, momentum, rank, liquidity and exchange context, and risk flags. Defaults to brief=off for low latency; set brief=full for a Kimi brief. Supports listed CoinGecko symbols beyond the fixed Pillar token list, e.g. WCT.",
+  {
+    symbol: z.string().default("BTC").describe("Token symbol, e.g. BTC, WCT, PEPE"),
+    brief: z.enum(["off", "full"]).default("off").describe("Use off for fast structured data, full for Kimi brief"),
+  },
+  async ({ symbol, brief }) => {
+    const result = await callTool("market_light", { symbol, brief });
     return { content: [{ type: "text", text: extractText("market_light", result) }] };
   },
 );

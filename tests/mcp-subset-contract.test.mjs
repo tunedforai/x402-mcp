@@ -59,7 +59,8 @@ test("marketLight exposes the any-token data/light bridge to upstream market_lig
 
   for (const text of [src, dist]) {
     assert.match(text, /server\.tool\(\s*"marketLight"/);
-    assert.match(text, /callTool\("market_light", \{ symbol \}\)/);
+    assert.match(text, /brief:\s*z\.enum\(\["off", "full"\]\)\.default\("off"\)/);
+    assert.match(text, /callTool\("market_light", \{ symbol, brief \}\)/);
     assert.match(text, /Any-token CoinGecko-backed market coverage via \/data\/light/);
   }
 });
@@ -71,20 +72,22 @@ test("README documents seven tools and separates marketLight any-token coverage"
   assert.match(readme, /All 7 tools are stateless/);
   assert.match(readme, /\| `marketLight` \| Any-token CoinGecko-backed market coverage/);
   assert.match(readme, /`POST \/data\/light`/);
+  assert.match(readme, /defaults to `brief=off`/);
   assert.match(readme, /marketLight supports listed CoinGecko symbols beyond the fixed Pillar token list/);
 });
 
-test("package and registry metadata publish marketLight as version 1.1.4", () => {
+test("package and registry metadata publish marketLight fast mode as version 1.1.5", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
   const server = JSON.parse(read("server.json"));
 
-  assert.equal(pkg.version, "1.1.4");
-  assert.equal(lock.version, "1.1.4");
-  assert.equal(lock.packages[""].version, "1.1.4");
-  assert.equal(server.version, "1.1.4");
-  assert.equal(server.packages[0].version, "1.1.4");
+  assert.equal(pkg.version, "1.1.5");
+  assert.equal(lock.version, "1.1.5");
+  assert.equal(lock.packages[""].version, "1.1.5");
+  assert.equal(server.version, "1.1.5");
+  assert.equal(server.packages[0].version, "1.1.5");
   assert.match(server.description, /7 tools/i);
   assert.match(server.description, /any-token CoinGecko-backed marketLight/i);
+  assert.match(server.description, /brief=off/i);
   assert.match(server.description, /\/data\/light/i);
 });
